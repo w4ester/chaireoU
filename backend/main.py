@@ -29,7 +29,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import StreamingResponse, Response, RedirectResponse
 
 
-from apps.socket.main import sio, app as socket_app, get_event_emitter, get_event_call
+from apps.socket.main import app as socket_app, get_event_emitter, get_event_call
 from apps.ollama.main import (
     app as ollama_app,
     get_all_models as get_ollama_models,
@@ -122,6 +122,7 @@ from config import (
 
 from constants import ERROR_MESSAGES, WEBHOOK_MESSAGES, TASKS
 from utils.webhook import post_webhook
+from security import safe_requests
 
 if SAFE_MODE:
     print("SAFE MODE ENABLED")
@@ -1826,7 +1827,7 @@ async def get_pipelines(urlIdx: Optional[int] = None, user=Depends(get_admin_use
         key = openai_app.state.config.OPENAI_API_KEYS[urlIdx]
 
         headers = {"Authorization": f"Bearer {key}"}
-        r = requests.get(f"{url}/pipelines", headers=headers)
+        r = safe_requests.get(f"{url}/pipelines", headers=headers)
 
         r.raise_for_status()
         data = r.json()
@@ -1865,7 +1866,7 @@ async def get_pipeline_valves(
         key = openai_app.state.config.OPENAI_API_KEYS[urlIdx]
 
         headers = {"Authorization": f"Bearer {key}"}
-        r = requests.get(f"{url}/{pipeline_id}/valves", headers=headers)
+        r = safe_requests.get(f"{url}/{pipeline_id}/valves", headers=headers)
 
         r.raise_for_status()
         data = r.json()
@@ -1905,7 +1906,7 @@ async def get_pipeline_valves_spec(
         key = openai_app.state.config.OPENAI_API_KEYS[urlIdx]
 
         headers = {"Authorization": f"Bearer {key}"}
-        r = requests.get(f"{url}/{pipeline_id}/valves/spec", headers=headers)
+        r = safe_requests.get(f"{url}/{pipeline_id}/valves/spec", headers=headers)
 
         r.raise_for_status()
         data = r.json()

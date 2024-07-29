@@ -1,9 +1,9 @@
 import logging
-import requests
 from yarl import URL
 
 from apps.rag.search.main import SearchResult
 from config import SRC_LOG_LEVELS
+from security import safe_requests
 
 log = logging.getLogger(__name__)
 log.setLevel(SRC_LOG_LEVELS["RAG"])
@@ -24,7 +24,7 @@ def search_jina(query: str, count: int) -> list[SearchResult]:
         "Accept": "application/json",
     }
     url = str(URL(jina_search_endpoint + query))
-    response = requests.get(url, headers=headers)
+    response = safe_requests.get(url, headers=headers)
     response.raise_for_status()
     data = response.json()
 

@@ -5,12 +5,7 @@ from fastapi import (
     FastAPI,
     Request,
     Depends,
-    HTTPException,
-    status,
-    UploadFile,
-    File,
-    Form,
-)
+    HTTPException)
 from fastapi.middleware.cors import CORSMiddleware
 
 from constants import ERROR_MESSAGES
@@ -20,7 +15,6 @@ from utils.utils import (
 )
 
 from apps.images.utils.comfyui import ImageGenerationPayload, comfyui_generate_image
-from utils.misc import calculate_sha256
 from typing import Optional
 from pydantic import BaseModel
 from pathlib import Path
@@ -49,6 +43,7 @@ from config import (
     IMAGE_STEPS,
     AppConfig,
 )
+from security import safe_requests
 
 log = logging.getLogger(__name__)
 log.setLevel(SRC_LOG_LEVELS["IMAGES"])
@@ -266,7 +261,7 @@ def get_models(user=Depends(get_verified_user)):
             ]
         elif app.state.config.ENGINE == "comfyui":
 
-            r = requests.get(url=f"{app.state.config.COMFYUI_BASE_URL}/object_info")
+            r = safe_requests.get(url=f"{app.state.config.COMFYUI_BASE_URL}/object_info")
             info = r.json()
 
             return list(
@@ -277,8 +272,7 @@ def get_models(user=Depends(get_verified_user)):
             )
 
         else:
-            r = requests.get(
-                url=f"{app.state.config.AUTOMATIC1111_BASE_URL}/sdapi/v1/sd-models",
+            r = safe_requests.get(url=f"{app.state.config.AUTOMATIC1111_BASE_URL}/sdapi/v1/sd-models",
                 headers={"authorization": get_automatic1111_api_auth()},
             )
             models = r.json()
@@ -305,8 +299,7 @@ async def get_default_model(user=Depends(get_admin_user)):
         elif app.state.config.ENGINE == "comfyui":
             return {"model": (app.state.config.MODEL if app.state.config.MODEL else "")}
         else:
-            r = requests.get(
-                url=f"{app.state.config.AUTOMATIC1111_BASE_URL}/sdapi/v1/options",
+            r = safe_requests.get(url=f"{app.state.config.AUTOMATIC1111_BASE_URL}/sdapi/v1/options",
                 headers={"authorization": get_automatic1111_api_auth()},
             )
             options = r.json()
@@ -326,8 +319,7 @@ def set_model_handler(model: str):
         return app.state.config.MODEL
     else:
         api_auth = get_automatic1111_api_auth()
-        r = requests.get(
-            url=f"{app.state.config.AUTOMATIC1111_BASE_URL}/sdapi/v1/options",
+        r = safe_requests.get(url=f"{app.state.config.AUTOMATIC1111_BASE_URL}/sdapi/v1/options",
             headers={"authorization": api_auth},
         )
         options = r.json()
@@ -394,7 +386,7 @@ def save_b64_image(b64_str):
 def save_url_image(url):
     image_id = str(uuid.uuid4())
     try:
-        r = requests.get(url)
+        r = safe_requests.get(url)
         r.raise_for_status()
         if r.headers["content-type"].split("/")[0] == "image":
 

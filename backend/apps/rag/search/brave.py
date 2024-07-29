@@ -1,9 +1,9 @@
 import logging
 from typing import List, Optional
-import requests
 
 from apps.rag.search.main import SearchResult, get_filtered_results
 from config import SRC_LOG_LEVELS
+from security import safe_requests
 
 log = logging.getLogger(__name__)
 log.setLevel(SRC_LOG_LEVELS["RAG"])
@@ -26,7 +26,7 @@ def search_brave(
     }
     params = {"q": query, "count": count}
 
-    response = requests.get(url, headers=headers, params=params)
+    response = safe_requests.get(url, headers=headers, params=params)
     response.raise_for_status()
 
     json_response = response.json()
