@@ -16,7 +16,7 @@ def extract_frontmatter(file_path):
 
     try:
         with open(file_path, "r", encoding="utf-8") as file:
-            first_line = file.readline()
+            first_line = file.readline(5_000_000)
             if first_line.strip() != '"""':
                 # The file doesn't start with triple quotes
                 return {}
