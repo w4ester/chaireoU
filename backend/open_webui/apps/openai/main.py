@@ -145,7 +145,7 @@ async def speech(request: Request, user=Depends(get_verified_user)):
                 data=body,
                 headers=headers,
                 stream=True,
-            )
+            timeout=60)
 
             r.raise_for_status()
 
@@ -319,7 +319,7 @@ async def get_models(url_idx: Optional[int] = None, user=Depends(get_verified_us
         r = None
 
         try:
-            r = requests.request(method="GET", url=f"{url}/models", headers=headers)
+            r = requests.request(method="GET", url=f"{url}/models", headers=headers, timeout=60)
             r.raise_for_status()
 
             response_data = r.json()

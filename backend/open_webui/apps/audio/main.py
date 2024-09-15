@@ -208,7 +208,7 @@ async def speech(request: Request, user=Depends(get_verified_user)):
                 data=body,
                 headers=headers,
                 stream=True,
-            )
+            timeout=60)
 
             r.raise_for_status()
 
@@ -270,7 +270,7 @@ async def speech(request: Request, user=Depends(get_verified_user)):
         }
 
         try:
-            r = requests.post(url, json=data, headers=headers)
+            r = requests.post(url, json=data, headers=headers, timeout=60)
 
             r.raise_for_status()
 
@@ -394,7 +394,7 @@ def transcribe(
                     headers=headers,
                     files=files,
                     data=data,
-                )
+                timeout=60)
 
                 r.raise_for_status()
 
@@ -443,8 +443,8 @@ def get_available_models() -> list[dict]:
 
         try:
             response = requests.get(
-                "https://api.elevenlabs.io/v1/models", headers=headers
-            )
+                "https://api.elevenlabs.io/v1/models", headers=headers, 
+            timeout=60)
             response.raise_for_status()
             models = response.json()
             return [
@@ -497,7 +497,7 @@ def get_elevenlabs_voices() -> dict:
     }
     try:
         # TODO: Add retries
-        response = requests.get("https://api.elevenlabs.io/v1/voices", headers=headers)
+        response = requests.get("https://api.elevenlabs.io/v1/voices", headers=headers, timeout=60)
         response.raise_for_status()
         voices_data = response.json()
 

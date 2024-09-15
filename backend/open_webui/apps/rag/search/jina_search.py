@@ -24,7 +24,7 @@ def search_jina(query: str, count: int) -> list[SearchResult]:
         "Accept": "application/json",
     }
     url = str(URL(jina_search_endpoint + query))
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=60)
     response.raise_for_status()
     data = response.json()
 
